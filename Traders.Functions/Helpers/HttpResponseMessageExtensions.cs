@@ -8,9 +8,16 @@ namespace Traders.Functions.Helpers
     {
         public static async Task<T> ReadAsJson<T>(this HttpResponseMessage message)
         {
-            return JsonConvert.DeserializeObject<T>(
-                await message.Content.ReadAsStringAsync()
-            );
+            try
+            {
+                return JsonConvert.DeserializeObject<T>(
+                    await message.Content.ReadAsStringAsync()
+                );
+            }
+            catch
+            {
+                throw new JsonException("Error converting Http response message to JSON.");
+            }
         }
     }
 }
