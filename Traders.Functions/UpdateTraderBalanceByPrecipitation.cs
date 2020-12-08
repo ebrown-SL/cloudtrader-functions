@@ -7,14 +7,15 @@ using Microsoft.Extensions.Logging;
 using Traders.Functions.Helpers;
 using Traders.Functions.ApiClients;
 using System;
+using Traders.Functions.Models.Request;
 
 namespace Traders.Functions
 {
-    public class UpdateTraderBalanceFromDailyPrecipitation
+    public class UpdateTraderBalanceByPrecipitation
     {
         private readonly ITradersApiClient tradersApiClient;
 
-        public UpdateTraderBalanceFromDailyPrecipitation(ITradersApiClient apiClient)
+        public UpdateTraderBalanceByPrecipitation(ITradersApiClient apiClient)
         {
             tradersApiClient = apiClient;
         }
@@ -29,7 +30,7 @@ namespace Traders.Functions
             TraderMineRevenueRequestModel requestBody = await req.ReadAsJson<TraderMineRevenueRequestModel>();
             if (requestBody.MineId == null)
             {
-                throw new Exception("Mine Id must be provided");
+                throw new ArgumentNullException("Mine Id must be provided");
             }
 
             if (requestBody.Precipitation == 0)
@@ -45,11 +46,10 @@ namespace Traders.Functions
             foreach (var trader in traders)
             {
                 var revenue = CalculateDailyMineRevenue(trader.Stock, requestBody.Precipitation);
-                log.LogInformation($"Updating trader {trader.Id} with daily revenue of {revenue}");
+                log.LogInformation($"Updating trader {trader.Id} with daily revenue of {revenue} from mine {requestBody.MineId}");
                 await tradersApiClient.PatchTraderBalance(trader.Id, revenue);
             }
-            // TO DO: check returned balance is as expected, then send ok (or log error)
-            return new OkObjectResult($"all traders: {traders.ToJson()}");
+            return new OkObjectResult($"Traders updated: {traders.ToJson()}");
         }
 
         private static int CalculateDailyMineRevenue(int stock, int precipitation)
