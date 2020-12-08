@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Traders.Functions.Classes.Response;
+using Traders.Functions.Models.Response;
 
 namespace Traders.Functions.ApiClients
 {

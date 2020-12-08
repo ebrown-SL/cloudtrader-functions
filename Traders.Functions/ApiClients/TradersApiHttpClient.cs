@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using Traders.Functions.Classes.Request;
-using Traders.Functions.Classes.Response;
+using Traders.Functions.Models.Request;
+using Traders.Functions.Models.Response;
 using Traders.Functions.Helpers;
 
 namespace Traders.Functions.ApiClients
