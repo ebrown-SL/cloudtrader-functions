@@ -1,15 +1,19 @@
 using Moq;
 using NUnit.Framework;
-using Traders.Functions;
+using System;
+using Traders.Functions.ApiClients;
 
 namespace Traders.Functions.Tests
 {
     public class UpdateTraderBalanceByPrecipitationTests
     {
         [SetUp]
-        public void Setup()
+        public Tuple<Mock<ITradersApiClient>, UpdateTraderBalanceByPrecipitation> Setup()
         {
             var mockApiClient = new Mock<ITradersApiClient>();
+            var mockFunction = new UpdateTraderBalanceByPrecipitation(mockApiClient.Object);
+
+            return new Tuple<Mock<ITradersApiClient>, UpdateTraderBalanceByPrecipitation>(mockApiClient, mockFunction);
         }
 
         [Test]
