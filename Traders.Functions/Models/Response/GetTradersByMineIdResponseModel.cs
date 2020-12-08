@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Traders.Functions.Classes.Response
+namespace Traders.Functions.Models.Response
 {
     public class GetTradersByMineIdResponseModel
     {

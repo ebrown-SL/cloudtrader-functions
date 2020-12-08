@@ -1,4 +1,4 @@
-﻿namespace Traders.Functions.Classes.Request
+﻿namespace Traders.Functions.Models.Request
 {
     public class UpdateTraderBalanceRequestModel
     {
