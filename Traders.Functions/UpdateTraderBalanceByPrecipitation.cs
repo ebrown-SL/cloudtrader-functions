@@ -20,14 +20,15 @@ namespace Traders.Functions
             tradersApiClient = apiClient;
         }
 
-        [FunctionName("UpdateTraderBalanceFromDailyPrecipitation")]
+        [FunctionName("UpdateTraderBalanceByDailyPrecipitation")]
         public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "post", Route = "/balance")]
+            [HttpTrigger(AuthorizationLevel.Function, "post", Route = "/weather")]
             HttpRequest req, ILogger log)
         {
-            log.LogInformation("MineRevenue function processed a request.");
+            log.LogInformation("UpdateTraderBalanceByDailyPrecipitation function processed a request.");
 
             TraderMineRevenueRequestModel requestBody = await req.ReadAsJson<TraderMineRevenueRequestModel>();
+            log.LogInformation($"Request to process daily precipitation of {requestBody.Precipitation} for stocks in mine id {requestBody.MineId}");
             if (requestBody.MineId == null)
             {
                 throw new ArgumentNullException("Mine Id must be provided");
@@ -41,15 +42,19 @@ namespace Traders.Functions
             log.LogInformation($"Fetching traders for mine: {requestBody.MineId}");
             var getTraders = await tradersApiClient.GetTraders(requestBody.MineId);
             var traders = getTraders.Traders;
+            if (traders == null)
+            {
+                return new OkObjectResult($"No traders found with stock in mine id: {requestBody.MineId}");
+            }
 
-            log.LogInformation("Updating each traders balance");
+            log.LogInformation("Updating each trader's balance");
             foreach (var trader in traders)
             {
                 var revenue = CalculateDailyMineRevenue(trader.Stock, requestBody.Precipitation);
-                log.LogInformation($"Updating trader {trader.Id} with daily revenue of {revenue} from mine {requestBody.MineId}");
+                log.LogInformation($"Updating trader {trader.Id} with daily revenue of {revenue} for mine {requestBody.MineId}");
                 await tradersApiClient.PatchTraderBalance(trader.Id, revenue);
             }
-            return new OkObjectResult($"Traders updated: {traders.ToJson()}");
+            return new OkObjectResult($"Trader balances updated: {traders.ToJson()}");
         }
 
         private static int CalculateDailyMineRevenue(int stock, int precipitation)
