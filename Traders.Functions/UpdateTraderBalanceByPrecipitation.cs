@@ -8,6 +8,8 @@ using Traders.Functions.Helpers;
 using Traders.Functions.ApiClients;
 using System;
 using Traders.Functions.Models.Request;
+using Traders.Functions.Models.Response;
+using System.Collections.Generic;
 
 namespace Traders.Functions
 {
@@ -22,39 +24,64 @@ namespace Traders.Functions
 
         [FunctionName("UpdateTraderBalanceByDailyPrecipitation")]
         public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "post", Route = "/weather")]
+            [HttpTrigger(AuthorizationLevel.Function, "post", Route = "weather")]
             HttpRequest req, ILogger log)
         {
             log.LogInformation("UpdateTraderBalanceByDailyPrecipitation function processed a request.");
 
-            TraderMineRevenueRequestModel requestBody = await req.ReadAsJson<TraderMineRevenueRequestModel>();
-            log.LogInformation($"Request to process daily precipitation of {requestBody.Precipitation} for stocks in mine id {requestBody.MineId}");
-            if (requestBody.MineId == null)
+            TraderMineRevenueRequestModel requestBody;
+
+            try
             {
-                throw new ArgumentNullException("Mine Id must be provided");
+                requestBody = await req.ReadAsJson<TraderMineRevenueRequestModel>();
+            }
+            catch (Exception ex)
+            {
+                log.LogInformation(ex, "UpdateTraderBalanceByDailyPrecipitation ended due exception when deserialising request body");
+                return new BadRequestObjectResult("Request body was not in the expected format");
             }
 
-            if (requestBody.Precipitation == 0)
+            log.LogInformation($"Request to process daily precipitation of {requestBody.Precipitation} for stocks in mine id {requestBody.MineId}");
+            if (requestBody.MineId == Guid.Empty)
             {
-                return new OkObjectResult($"Precipitation for mine {requestBody.MineId} was 0.");
+                log.LogInformation("UpdateTraderBalanceByDailyPrecipitation ended due to empty mine id in request body");
+                return new BadRequestObjectResult("Request body was not in the expected format");
             }
+
+            if (requestBody.Precipitation <= 0)
+            {
+                return new OkObjectResult($"Precipitation for mine {requestBody.MineId} was not greater than zero.");
+            }
+
+            List<TraderCloudStockResponseModel> traders;
 
             log.LogInformation($"Fetching traders for mine: {requestBody.MineId}");
-            var getTraders = await tradersApiClient.GetTraders(requestBody.MineId);
-            var traders = getTraders.Traders;
-            if (traders == null)
+            try
+            {
+                var getTraders = await tradersApiClient.GetTraders(requestBody.MineId);
+                traders = getTraders.Traders;
+            }
+            catch (Exception ex)
+            {
+                log.LogInformation(ex, "UpdateTraderBalanceByDailyPrecipitation ended due exception when getting traders");
+                return new StatusCodeResult(500);
+            }
+
+            if ((traders?.Count ?? 0) == 0)
             {
                 return new OkObjectResult($"No traders found with stock in mine id: {requestBody.MineId}");
             }
 
             log.LogInformation("Updating each trader's balance");
+            List<TraderResponseModel> updatedTraders = new List<TraderResponseModel>();
             foreach (var trader in traders)
             {
                 var revenue = CalculateDailyMineRevenue(trader.Stock, requestBody.Precipitation);
                 log.LogInformation($"Updating trader {trader.Id} with daily revenue of {revenue} for mine {requestBody.MineId}");
-                await tradersApiClient.PatchTraderBalance(trader.Id, revenue);
+                var updatedTrader = await tradersApiClient.PatchTraderBalance(trader.Id, revenue);
+                updatedTraders.Add(updatedTrader);
             }
-            return new OkObjectResult($"Trader balances updated: {traders.ToJson()}");
+            return new OkObjectResult($"Trader balances updated: {updatedTraders.ToJson()}");
         }
 
         private static int CalculateDailyMineRevenue(int stock, int precipitation)

@@ -22,7 +22,8 @@ namespace Traders.Functions.Tests
         private Mock<ILogger> mockLogger;
         private UpdateTraderBalanceByPrecipitation functionUnderTest;
 
-        private readonly Guid mockMineId = new Guid();
+        private readonly Guid mockMineId = Guid.NewGuid();
+        private readonly Guid mockTraderId = Guid.NewGuid();
 
         [SetUp]
         public void SetupMockConfig()
@@ -48,20 +49,26 @@ namespace Traders.Functions.Tests
         }
 
         [Test]
-        public void Run_WithNullMineId_ThrowsArgumentNullException()
+        public async Task Run_WithEmptyMineId_ReturnsBadRequestObjectResult()
         {
             dynamic mockReqBody = new ExpandoObject();
-            mockReqBody.MineId = (Guid?)null;
+            mockReqBody.MineId = new Guid();
 
             var mockReq = CreateMockRequest(mockReqBody);
+            var result = await functionUnderTest.Run(mockReq.Object, mockLogger.Object);
 
-            Assert.ThrowsAsync<ArgumentNullException>(() => functionUnderTest.Run(mockReq.Object, It.IsAny<ILogger>()));
+            Assert.IsInstanceOf<BadRequestObjectResult>(result);
+
+            var badReq = (BadRequestObjectResult)result;
+
+            Assert.AreEqual("Request body was not in the expected format", badReq.Value);
         }
 
-        [Test]
-        public async Task Run_WithZeroPrecipitation_ReturnsOkObjectResult()
+        [TestCase(0)]
+        [TestCase(-20)]
+        public async Task Run_WithInvalidPrecipitation_ReturnsOkObjectResult(int precipitation)
         {
-            var mockReqBody = new TraderMineRevenueRequestModel() { MineId = mockMineId, Precipitation = 0 };
+            var mockReqBody = new TraderMineRevenueRequestModel(mockMineId, precipitation);
             var mockReq = CreateMockRequest(mockReqBody);
 
             var result = await functionUnderTest.Run(mockReq.Object, mockLogger.Object);
@@ -70,13 +77,13 @@ namespace Traders.Functions.Tests
 
             var okResult = (OkObjectResult)result;
 
-            Assert.AreEqual($"Precipitation for mine {mockReqBody.MineId} was 0.", okResult.Value);
+            Assert.AreEqual($"Precipitation for mine {mockReqBody.MineId} was not greater than zero.", okResult.Value);
         }
 
         [Test]
         public async Task Run_WithNoTradersFound_ReturnsOkObjectResult()
         {
-            var mockReqBody = new TraderMineRevenueRequestModel() { MineId = mockMineId, Precipitation = 20 };
+            var mockReqBody = new TraderMineRevenueRequestModel(mockMineId, 20);
             var mockReq = CreateMockRequest(mockReqBody);
             var mockResp = new GetTradersByMineIdResponseModel();
             mockTradersApiClient
@@ -91,24 +98,52 @@ namespace Traders.Functions.Tests
             Assert.AreEqual($"No traders found with stock in mine id: {mockMineId}", okResult.Value);
         }
 
-        [Test]
-        public async Task Run_TradersSuccessfullyUpdated_ReturnsOkObjectResult()
+        [TestCase(20)]
+        public async Task Run_TraderBalanceSuccessfullyUpdated_ReturnsOkObjectResult(int stock)
         {
-            var mockReqBody = new TraderMineRevenueRequestModel() { MineId = mockMineId, Precipitation = 20 };
+            var mockReqBody = new TraderMineRevenueRequestModel(mockMineId, 20);
             var mockReq = CreateMockRequest(mockReqBody);
 
-            var mockTrader = new TraderCloudStockResponseModel() { Id = new Guid(), MineId = mockMineId, Stock = 20 };
-            var mockResp = new GetTradersByMineIdResponseModel() { Traders = new List<TraderCloudStockResponseModel>() { mockTrader } };
+            var mockTrader = new TraderCloudStockResponseModel(mockTraderId, mockMineId, stock);
+            var mockGetTradersResp = new GetTradersByMineIdResponseModel() { Traders = new List<TraderCloudStockResponseModel>() { mockTrader } };
+
+            var amountToAdd = mockReqBody.Precipitation * stock;
+
+            var mockUpdatedTrader = new TraderResponseModel(mockTraderId, 4000);
+
             mockTradersApiClient
                 .Setup(mock => mock.GetTraders(mockMineId))
-                .ReturnsAsync(mockResp);
+                .ReturnsAsync(mockGetTradersResp);
+            mockTradersApiClient
+                .Setup(mock => mock.PatchTraderBalance(mockTraderId, amountToAdd))
+                .ReturnsAsync(mockUpdatedTrader);
             var result = await functionUnderTest.Run(mockReq.Object, mockLogger.Object);
 
             Assert.IsInstanceOf<OkObjectResult>(result);
 
             var okResult = (OkObjectResult)result;
 
-            Assert.AreEqual($"Trader balances updated: {mockResp.Traders.ToJson()}", okResult.Value);
+            var resultList = new List<TraderResponseModel>() { mockUpdatedTrader };
+            Assert.AreEqual($"Trader balances updated: {resultList.ToJson()}", okResult.Value);
+        }
+
+        [Test]
+        public async Task Run_GetTradersFails_ReturnsStatusCodeResult500()
+        {
+            var mockReqBody = new TraderMineRevenueRequestModel(It.IsAny<Guid>(), It.IsAny<int>());
+            var mockReq = CreateMockRequest(mockReqBody);
+
+            mockTradersApiClient
+                .Setup(mock => mock.GetTraders(It.IsAny<Guid>()))
+                .Throws(new Exception());
+
+            var result = await functionUnderTest.Run(mockReq.Object, mockLogger.Object);
+
+            Assert.IsInstanceOf<StatusCodeResult>(result);
+
+            var statusResult = (StatusCodeResult)result;
+
+            Assert.AreEqual(500, statusResult.StatusCode);
         }
     }
 }

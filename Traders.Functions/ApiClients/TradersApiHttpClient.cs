@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 using Traders.Functions.Models.Request;
 using Traders.Functions.Models.Response;
@@ -13,8 +11,7 @@ namespace Traders.Functions.ApiClients
     {
         private HttpClient client;
 
-        // TO DO: this needs to be env var
-        private string tradersUrl = Environment.GetEnvironmentVariable("TRADER_API_URL");
+        private static readonly string tradersUrl = Environment.GetEnvironmentVariable("TRADER_API_URL");
 
         public TradersApiHttpClient(IHttpClientFactory httpClientFactory)
         {
