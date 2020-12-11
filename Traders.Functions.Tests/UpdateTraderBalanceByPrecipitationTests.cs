@@ -59,10 +59,10 @@ namespace Traders.Functions.Tests
 
             // Act
             var result = await functionUnderTest.Run(mockReq.Object, mockLogger.Object);
-            var badReq = (BadRequestObjectResult)result;
 
             // Assert
             Assert.IsInstanceOf<BadRequestObjectResult>(result);
+            var badReq = (BadRequestObjectResult)result;
             Assert.AreEqual("Request body was not in the expected format", badReq.Value);
             mockTradersApiClient.Verify(mock => mock.GetTraders(It.IsAny<Guid>()), Times.Never);
             mockTradersApiClient.Verify(mock => mock.PatchTraderBalance(It.IsAny<Guid>(), It.IsAny<int>()), Times.Never);
@@ -78,10 +78,10 @@ namespace Traders.Functions.Tests
 
             // Act
             var result = await functionUnderTest.Run(mockReq.Object, mockLogger.Object);
-            var okResult = (OkObjectResult)result;
 
             // Assert
             Assert.IsInstanceOf<OkObjectResult>(result);
+            var okResult = (OkObjectResult)result;
             Assert.AreEqual($"Precipitation for mine {mockReqBody.MineId} was not greater than zero.", okResult.Value);
             mockTradersApiClient.Verify(mock => mock.GetTraders(It.IsAny<Guid>()), Times.Never);
             mockTradersApiClient.Verify(mock => mock.PatchTraderBalance(It.IsAny<Guid>(), It.IsAny<int>()), Times.Never);
@@ -100,10 +100,10 @@ namespace Traders.Functions.Tests
 
             // Act
             var result = await functionUnderTest.Run(mockReq.Object, mockLogger.Object);
-            var okResult = (OkObjectResult)result;
 
             // Assert
             Assert.IsInstanceOf<OkObjectResult>(result);
+            var okResult = (OkObjectResult)result;
             Assert.AreEqual($"No traders found with stock in mine id: {mockMineId}", okResult.Value);
             mockTradersApiClient.Verify(mock => mock.GetTraders(It.IsAny<Guid>()), Times.Once);
             mockTradersApiClient.Verify(mock => mock.PatchTraderBalance(It.IsAny<Guid>(), It.IsAny<int>()), Times.Never);
@@ -134,10 +134,10 @@ namespace Traders.Functions.Tests
 
             // Act
             var result = await functionUnderTest.Run(mockReq.Object, mockLogger.Object);
-            var okResult = (OkObjectResult)result;
 
             // Assert
             Assert.IsInstanceOf<OkObjectResult>(result);
+            var okResult = (OkObjectResult)result;
             Assert.AreEqual($"Trader balances updated: {mockUpdatedTraders.ToJson()}", okResult.Value);
             mockTradersApiClient.Verify(mock => mock.GetTraders(It.IsAny<Guid>()), Times.Once);
             mockTradersApiClient.Verify(mock => mock.PatchTraderBalance(It.IsAny<Guid>(), It.IsAny<int>()), Times.Exactly(3));
@@ -147,19 +147,19 @@ namespace Traders.Functions.Tests
         public async Task Run_GetTradersFromTradersServiceFails_ReturnsStatusCodeResult500()
         {
             // Arrange
-            var mockReqBody = new TraderMineRevenueRequestModel(It.IsAny<Guid>(), It.IsAny<int>());
+            var mockReqBody = new TraderMineRevenueRequestModel(mockMineId, 20);
             var mockReq = CreateMockRequest(mockReqBody);
 
             mockTradersApiClient
-                .Setup(mock => mock.GetTraders(It.IsAny<Guid>()))
+                .Setup(mock => mock.GetTraders(It.Is<Guid>(id => id.Equals(mockMineId))))
                 .ThrowsAsync(new Exception());
 
             // Act
             var result = await functionUnderTest.Run(mockReq.Object, mockLogger.Object);
-            var statusCodeResult = (StatusCodeResult)result;
 
             // Assert
             Assert.IsInstanceOf<StatusCodeResult>(result);
+            var statusCodeResult = (StatusCodeResult)result;
             Assert.AreEqual(500, statusCodeResult.StatusCode);
             mockTradersApiClient.Verify(mock => mock.GetTraders(It.IsAny<Guid>()), Times.Once);
             mockTradersApiClient.Verify(mock => mock.PatchTraderBalance(It.IsAny<Guid>(), It.IsAny<int>()), Times.Never);
