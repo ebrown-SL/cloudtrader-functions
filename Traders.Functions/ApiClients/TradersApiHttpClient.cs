@@ -9,7 +9,7 @@ namespace Traders.Functions.ApiClients
 {
     public class TradersApiHttpClient : ITradersApiClient
     {
-        private HttpClient client;
+        private readonly HttpClient client;
 
         private static readonly string tradersUrl = Environment.GetEnvironmentVariable("TRADER_API_URL");
 
