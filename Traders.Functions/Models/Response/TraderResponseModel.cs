@@ -6,5 +6,15 @@ namespace Traders.Functions.Models.Response
     {
         public Guid Id { get; set; }
         public int Balance { get; set; }
+
+        public TraderResponseModel()
+        {
+        }
+
+        public TraderResponseModel(Guid id, int balance)
+        {
+            Id = id;
+            Balance = balance;
+        }
     }
 }
