@@ -4,14 +4,14 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Traders.Functions.Helpers;
-using Traders.Functions.ApiClients;
+using CloudTrader.Functions.Extensions;
+using CloudTrader.Functions.ApiClients;
 using System;
-using Traders.Functions.Models.Request;
-using Traders.Functions.Models.Response;
 using System.Collections.Generic;
+using CloudTrader.Functions.Traders.Models.Request;
+using CloudTrader.Functions.Traders.Models.Response;
 
-namespace Traders.Functions
+namespace CloudTrader.Functions
 {
     public class UpdateTraderBalanceByPrecipitation
     {

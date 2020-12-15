@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Traders.Functions.Models.Response;
+using CloudTrader.Functions.Traders.Models.Response;
 
-namespace Traders.Functions.ApiClients
+namespace CloudTrader.Functions.ApiClients
 {
     public interface ITradersApiClient
     {

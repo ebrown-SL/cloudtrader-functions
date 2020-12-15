@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30717.126
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Traders.Functions", "Traders.Functions\Traders.Functions.csproj", "{02656F69-86B7-48C0-8500-118908BB0810}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CloudTrader.Functions", "CloudTrader.Functions\CloudTrader.Functions.csproj", "{02656F69-86B7-48C0-8500-118908BB0810}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Traders.Functions.Tests", "Traders.Functions.Tests\Traders.Functions.Tests.csproj", "{CD49ECE2-4DE2-42F7-A0AE-2C2869C07BB0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CloudTrader.Functions.Tests", "CloudTrader.Functions.Tests\CloudTrader.Functions.Tests.csproj", "{CD49ECE2-4DE2-42F7-A0AE-2C2869C07BB0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

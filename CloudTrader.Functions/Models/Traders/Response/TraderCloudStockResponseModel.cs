@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Traders.Functions.Models.Response
+namespace CloudTrader.Functions.Traders.Models.Response
 {
     public class TraderCloudStockResponseModel
     {

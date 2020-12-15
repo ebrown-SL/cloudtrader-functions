@@ -1,20 +1,20 @@
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
-using Traders.Functions.ApiClients;
+using CloudTrader.Functions.ApiClients;
 using Microsoft.AspNetCore.Http;
-using Traders.Functions.Models.Request;
-using Traders.Functions.Helpers;
+using CloudTrader.Functions.Extensions;
 using System.IO;
 using System.Text;
 using System.Dynamic;
 using System;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
-using Traders.Functions.Models.Response;
 using System.Collections.Generic;
+using CloudTrader.Functions.Traders.Models.Response;
+using CloudTrader.Functions.Traders.Models.Request;
 
-namespace Traders.Functions.Tests
+namespace CloudTrader.Functions.Tests
 {
     public class UpdateTraderBalanceByPrecipitationTests
     {

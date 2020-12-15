@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Traders.Functions.Models.Request
+namespace CloudTrader.Functions.Traders.Models.Request
 {
     public class TraderMineRevenueRequestModel
     {

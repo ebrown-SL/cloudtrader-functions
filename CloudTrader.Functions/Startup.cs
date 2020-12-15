@@ -1,10 +1,10 @@
 ﻿using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
-using Traders.Functions.ApiClients;
+using CloudTrader.Functions.ApiClients;
 
-[assembly: FunctionsStartup(typeof(Traders.Functions.Startup))]
+[assembly: FunctionsStartup(typeof(CloudTrader.Functions.Startup))]
 
-namespace Traders.Functions
+namespace CloudTrader.Functions
 {
     public class Startup : FunctionsStartup
     {

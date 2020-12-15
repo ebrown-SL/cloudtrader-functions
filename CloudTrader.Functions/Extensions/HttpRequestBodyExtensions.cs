@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace Traders.Functions.Helpers
+namespace CloudTrader.Functions.Extensions
 {
     public static class HttpRequestBodyExtensions
     {

@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Traders.Functions.Models.Request;
-using Traders.Functions.Models.Response;
-using Traders.Functions.Helpers;
+using CloudTrader.Functions.Extensions;
+using CloudTrader.Functions.Traders.Models.Request;
+using CloudTrader.Functions.Traders.Models.Response;
 
-namespace Traders.Functions.ApiClients
+namespace CloudTrader.Functions.ApiClients
 {
     public class TradersApiHttpClient : ITradersApiClient
     {

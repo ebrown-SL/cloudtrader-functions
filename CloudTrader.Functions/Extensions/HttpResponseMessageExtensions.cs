@@ -2,7 +2,7 @@
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace Traders.Functions.Helpers
+namespace CloudTrader.Functions.Extensions
 {
     public static class HttpResponseMessageExtensions
     {

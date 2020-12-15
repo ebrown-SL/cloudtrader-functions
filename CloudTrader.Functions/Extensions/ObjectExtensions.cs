@@ -1,15 +1,15 @@
-﻿using Newtonsoft.Json;
+﻿using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
 
-namespace Traders.Functions.Helpers
+namespace CloudTrader.Functions.Extensions
 {
-    public static class HttpContentExtensions
+    public static class ObjectExtensions
     {
         public static string ToJson(this object obj)
         {
-            return JsonConvert.SerializeObject(obj);
-            throw new JsonSerializationException("JSON serialization error");
+            return Newtonsoft.Json.JsonConvert.SerializeObject(obj);
         }
 
         public static HttpContent ToJsonStringContent(this object obj)
